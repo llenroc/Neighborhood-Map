@@ -1,0 +1,25 @@
+/*
+
+... some CSS that works within quirks mode is not valid in standards mode.
+In specific, all percentage-based sizes must inherit from parent block elements,
+ and if any of those ancestors fail to specify a size, they are assumed to be
+ sized at 0 x 0 pixels.
+
+This CSS declaration indicates that the map container <div> (with id map)
+should take up 100% of the height of the HTML body. Note that we must specifically declare those percentages for <body> and <html> as well.
+
+Source: https://developers.google.com/maps/documentation/javascript/tutorial#HTML5
+
+*/
+
+html,
+body {
+  font-family: Arial, sans-serif;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#map {
+  height: 100%;
+}
