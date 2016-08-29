@@ -40,9 +40,13 @@ function initMap() {
   map = new google.maps.Map(document.getElementById('map'), {
     center: {lat: 43.653226, lng: -79.3831843}, // Downtown Toronto
     zoom: 13,   //Smaller the number, the more zoomed out you are
-    mapTypeControl: false
+    mapTypeControl: true
   });
 
+  // Invoke makeMarkers function
+  makeMarkers();
+
+  ko.applyBindings(vm);
 
 }
 // Setting up googleError to display alert message if map does not load
@@ -55,25 +59,154 @@ function googleError() {
 
 }
 
-// Observables
-// Source: https://discussions.udacity.com/t/having-trouble-accessing-data-outside-an-ajax-request/39072/11?u=david_31931020565290
-var Place = function (data){
+var makeMarkers = function(){
 
-  this.name    = ko.observable(data.name);
-  this.address = ko.observable(data.address);
-  this.lat     = ko.observable(data.lat);
-  this.lng     = ko.observable(data.lng);
-  this.url     = ko.observable(data.url);
-  this.rating  = ko.observable(data.rating);
-  this.marker  = ko.observable();
+  var location;
+  var boundaries = new google.maps.LatLngBounds();
+
+  var i;
+
+  for (i =0; i < vm.locationObserArray().length; i++){
+
+    // Store this location item inside a variable
+    location = vm.locationObserArray()[i];
+
+    var mapMarker = new google.maps.Marker({
+      map: map,
+      position: location.location,
+      title: location.name,
+      animation: google.maps.Animation.DROP,
+
+    });
+
+    // Store the mapMarker item inside the location item
+
+    location.marker = mapMarker;
+
+    }
+
+  }
+
+
+// Marker Animation
+function markerBounce(location){
+    if (location.marker.getAnimation() !== null){
+      location.marker.setAnimation(null);
+    }
+    else {
+      location.marker.setAnimation(google.maps.Animation.BOUNCE);
+      setTimeout(function(){
+        location.marker.setAnimation(null);
+      }, 500);
+    }
 
 }
+
+var makeInfowindow = function(location){
+
+  var clientId = 'MHBLFPCXO2YPRPD2U44YYOMTFFCPPHGIFOKXAGW3VABQZM2X'
+  var clientSecret = '4HNIJABEJGAXGUCROWUOTDK3FCITUOEY1EB315H13CZOIPIY'
+  var fourSquareUrl = 'https://api.foursquare.com/v2/venues/search'
+
+  var newVenues = function(){
+    $.ajax({
+
+      url: fourSquareUrl,
+      dataType: 'json',
+      data:{
+        limit: 10,
+        ll: '43.653226, -79.3831843',
+        query: location.name,
+        clientId: clientId,
+        clientSecret: clientSecret,
+        v: 20161231,
+        m: 'foursquare'
+      },
+      async: true,
+
+      // Show Foursquare content
+      success: function(result) {
+
+        var venue   = result.response.venues[0];
+        var address = venue.location.address;
+
+        if (venue === null) {
+
+          var infowindowContent = '<div class="locationTitle">' + location.name
+          + '<div class="information">' + location.info + '</div>'
+          + 'NO ADDRESS DATA AVAILABLE.' + '</div>';
+
+        } else {
+          var infoWindowContent = '<div class="locationTitle">' + location.name + '<div class="information">' +
+          location.info + '</div>' + theAddress + '</div>';
+        }
+
+        // Load content into the infowindow
+        infowindow.setContent(infowindowContent);
+        infowindow.open(map, location.marker);
+      },
+      error: function () {
+        alert(' Foursquare request failed.');
+      }
+
+    });
+  }
+  newVenues();
+}
+
+var LocationItem = function(place) {
+
+    this.name = place.name;
+    this.location = place.location;
+    this.info = place.info;
+    this.currentSelection = ko.observable(true);
+}
+
+
+var ViewModel = function (){
+
+  var self = this;
+
+  self.locationObserArray = ko.observableArray();
+
+  var place;
+
+  for (var i; i < locations.lenght; i++){
+
+    // Make new LocationItem with location objects
+    place = new LocationItem(locations[i]);
+
+    // Push the new LocationItem to the locationObserArray
+    self.locationObserArray.push(place);
+
+  }
+  self.listItemClick = function(marker){
+    google.maps.event.trigger(this.maarker, 'click');
+  }
+
+}
+
+var vm = new ViewModel();
+
+
+// Observables
+// Source: https://discussions.udacity.com/t/having-trouble-accessing-data-outside-an-ajax-request/39072/11?u=david_31931020565290
+// var Place = function (data){
+//
+//   this.name    = ko.observable(data.name);
+//   this.address = ko.observable(data.address);
+//   this.lat     = ko.observable(data.lat);
+//   this.lng     = ko.observable(data.lng);
+//   this.url     = ko.observable(data.url);
+//   this.rating  = ko.observable(data.rating);
+//   this.marker  = ko.observable();
+//
+// }
 
 
 //                           V I E W M O D E L
 
-// Goal: Create infowindow w/ address + IG photos
-
+/*
 
 var ViewModel = function() {
   // Making `this` accessible within the function. Self represents ViewModel
@@ -148,13 +281,10 @@ var ViewModel = function() {
 
   });
 
-  // self.venue_info = function(placeObject){
-  //   google.maps.event.trigger(placeObject.marker, 'click');
-  // };
 
 }
 
-
+*/
 
 
 
