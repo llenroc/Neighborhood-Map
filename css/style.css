@@ -23,3 +23,15 @@ body {
 #map {
   height: 100%;
 }
+
+.container {
+    height: 100%;
+}
+
+.locationTitle {
+  margin: 0;
+}
+
+.classTitle{
+  margin: 0;
+}
