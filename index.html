@@ -5,31 +5,45 @@
     <meta charset='UTF-8'>
     <title>Neighborhood Map</title>
     <meta name='Map Project' content='Toronto Museums and Galleries'>
-    <meta name='viewport' content='initial-scale=1.0'>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel='stylesheet' href='css/style.css'>
+    <link rel='stylesheet' href='css/bootstrap.css' />
 
   </head>
 
   <body>
-      <div class='container'>
-        <!-- For map to render, see details in style.css  -->
-        <div id='map'></div>
-        <h1> Neighborhood Map - Art Galleries in Toronto </h1>
-        <li span> </li>
+    <div class='container'>
+      <!-- For map to render, see details in style.css  -->
+      <div class='col-sm-3'>
+
+        <h2> Art Galleries & Museums in Toronto</h2>
+        <label>Search: </label>
+        <input  placeholder="Filter by name" value=" "/>
+        <br />
+        <br />
+
+        <ul>
+          <li>
+            <span></span>
+          </li>
+        </ul>
+
       </div>
 
+      <div class='col-sm-9'>
+        <div id='map'></div>
+      </div>
 
-      <script src='https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.0/knockout-min.js'></script>
-      <script src='js/app_02.js'></script>
-      <script src='js/jquery-3.1.0.min.js'></script>
-      <!--
-        Handling Google Maps in Async and Fallback:
-        https://discussions.udacity.com/t/handling-google-maps-in-async-and-fallback/34282
-      -->
-      <script async defer src='https://maps.googleapis.com/maps/api/js?key=AIzaSyB-PW96pMprySrSMiJkwfFk3wbiWYpP0r0&v=3&callback=initMap' onerror='googleError()'>
+    </div>
 
-
-      </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.0/knockout-min.js'></script>
+    <script src='js/app_02.js'></script>
+    <script src='js/jquery-3.1.0.min.js'></script>
+    <!--
+    Handling Google Maps in Async and Fallback:
+    https://discussions.udacity.com/t/handling-google-maps-in-async-and-fallback/34282
+    -->
+    <script async defer src='https://maps.googleapis.com/maps/api/js?key=AIzaSyB-PW96pMprySrSMiJkwfFk3wbiWYpP0r0&v=3&callback=initMap' onerror='googleError()'></script>
 
 
   </body>
