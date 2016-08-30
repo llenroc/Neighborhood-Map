@@ -5,36 +5,36 @@
     <meta charset='UTF-8'>
     <title>Neighborhood Map</title>
     <meta name='Map Project' content='Toronto Museums and Galleries'>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel='stylesheet' href='css/style.css'>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <!--  Order matters! -->
     <link rel='stylesheet' href='css/bootstrap.css' />
+    <link rel='stylesheet' href='css/style.css'>
 
   </head>
 
   <body>
-    <div class='container'>
+    <div class='row col-md-3 left-sidebar'>
       <!-- For map to render, see details in style.css  -->
-      <div class='col-sm-3'>
+      <div>
 
-        <h2> Art Galleries & Museums in Toronto</h2>
+        <h2> Art Galleries + Museums in Toronto</h2>
         <label>Search: </label>
-        <input  placeholder="Filter by name" value=" "/>
-        <br />
+        <input placeholder='Filter by name'/>
         <br />
 
         <ul>
           <li>
-            <span></span>
+            <span id='listItems' data-bind='text:name'></span>
           </li>
         </ul>
-
-      </div>
-
-      <div class='col-sm-9'>
-        <div id='map'></div>
       </div>
 
     </div>
+    <div class="col-sm-9 map-container">
+        <div id='map'></div>
+    </div>
+    <!-- <div id='map'></div> -->
+
 
     <script src='https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.0/knockout-min.js'></script>
     <script src='js/app_02.js'></script>
