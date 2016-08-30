@@ -65,15 +65,19 @@ function googleError() {
 
 }
 
+var markers = [];
+
 var makeMarkers = function(){
   console.log("makeMarkers");
 
   var location;
-  var boundaries = new google.maps.LatLngBounds();
+  // LatLng
+  // Source: https://developers.google.com/maps/documentation/javascript/reference
+  var largeInfowindow = new google.maps.InfoWindow();
+  var bounds = new google.maps.LatLngBounds();
 
-  var i;
 
-  for (i =0; i < vm.locationObserArray().length; i++){
+  for (var i = 0; i < vm.locationObserArray().length; i++){
 
     // Store this location item inside a variable
     location = vm.locationObserArray()[i];
@@ -86,21 +90,36 @@ var makeMarkers = function(){
 
     });
 
-    // Store the mapMarker item inside the location item
-    location.marker = mapMarker;
+    markers.push(mapMarker);
 
-    //Create marker listener that will execture infowindow too.
-    mapMarker.addListener('click', function(location){
-
-      return function(){
-        makeInfowindow(location);
-      };
-    })
+    mapMarker.addListener('click', function() {
+      populateInfoWindow(this, largeInfowindow)
+    });
+    bounds.extend(markers[i].position);
 
   }
-
+  map.fitBounds(bounds);
 }
 
+// This function populates the infowindow when the marker is clicked. We'll only allow
+// one infowindow which will open at the marker that is clicked, and populate based
+// on that markers position.
+// Source /_Google Maps API folder: https://classroom.udacity.com/courses/ud864/lessons/8304370457/concepts/83122494450923#
+
+function populateInfoWindow(mapMarker, infowindow) {
+  // Check to make sure the infowindow is not already opened on this marker.
+  if (infowindow.mapMarker != mapMarker) {
+    infowindow.mapMarker = mapMarker;
+    infowindow.setContent('<div>Name: ' + mapMarker.title + '</div>\n'
+    + '<div> Lat/Lng: ' + mapMarker.position + '</div>');
+    // infowindow.setContent('<div>' + mapMarker.position + '</div>');
+    infowindow.open(map, mapMarker);
+    // Make sure the marker property is cleared if the infowindow is closed.
+    infowindow.addListener('closeclick',function(){
+      infowindow.setMarker(null);
+    });
+  }
+}
 
 // Marker Animation
 // Source: https://developers.google.com/maps/documentation/javascript/examples/marker-animations
@@ -117,62 +136,68 @@ function markerBounce(location){
 
 }
 
-var makeInfowindow = function(location) {
-  console.log("location");
+// var makeInfowindow = function(location) {
+//   console.log("location");
+//
+//   // AJAX request.
+//   // Source:
+//   var fourSqUrl = 'https://api.foursquare.com/v2/venues/search';
+//   var clientId  = 'MHBLFPCXO2YPRPD2U44YYOMTFFCPPHGIFOKXAGW3VABQZM2X';
+//   var clientSecret = '4HNIJABEJGAXGUCROWUOTDK3FCITUOEY1EB315H13CZOIPIY';
+//
+//
+//
+//
+//   function getVenues(){
+//     console.log("getVenues");
+//     $.ajax({
+//
+//       url: fourSqUrl,
+//       dataType: 'json',
+//       data: {
+//         ll: '43.653226, -79.3831843', // Downtown Toronto
+//         clientId: clientId,
+//         clientSecret: clientSecret,
+//         v: 20161231,
+//         m: 'foursquare',
+//         query: location.name,
+//         limit: 10
+//       },
+//       async: true,
+//
+//       // If Foursquare ajax request is successful...
+//       success: function(result){
+//
+//         var venue = result.response.venues[0];
+//         var address = venue.location.address;
+//
+//         // console.log(venue);
+//         // console.log(address);
+//
+//         if (venue === null) {
+//           var infoWindowContent = '<div>' + location.name + '</div>' +
+//           '<div>' + location.info + '</div>' + ': NO ADDRESS DATA AVAILABLE.';
+//         } else {
+//           var infoWindowContent = '<div>' + location.name + '</div>' +
+//           location.info + '<div>' + address + '</div>';
+//         }
+//
+//         // Populates content of window with the following:
+//         infowindow.setContent(infoWindowContent);
+//         infowindow.open(map, location.marker);
+//
+//       },
+//       //If request fails...
+//       error: function(){
+//         alert('Request unsuccessful.');
+//       }
+//
+//     });
+//   }
+//   getVenues();
+// }
 
-  // AJAX request.
-  // Source:
-  var fourSqUrl = 'https://api.foursquare.com/v2/venues/search';
-  var clientId  = 'MHBLFPCXO2YPRPD2U44YYOMTFFCPPHGIFOKXAGW3VABQZM2X';
-  var clientSecret = '4HNIJABEJGAXGUCROWUOTDK3FCITUOEY1EB315H13CZOIPIY';
 
-  function getVenues(){
-    console.log("getVenues");
-    $.ajax({
-
-      url:fourSqUrl,
-      dataType: 'json',
-      data: {
-        ll: '43.653226, -79.3831843', // Downtown Toronto 
-        clientId: clientId,
-        clientSecret: clientSecret,
-        v: 20161231,
-        m: 'foursquare'
-      },
-      async: true,
-
-      // If Foursquare ajax request is successful...
-      success: function(result){
-
-        var venue = result.response.venues[0];
-        var address = venue.location.address;
-
-        // console.log(venue);
-        // console.log(address);
-
-        if (venue === null) {
-          var infoWindowContent = '<div class="locationTitle">' + location.name + '<div class="information">' +
-          location.info + '</div>' + 'NO ADDRESS DATA AVAILABLE.' + '</div>';
-        } else {
-          var infoWindowContent = '<div class="locationTitle">' + location.name + '<div class="information">' +
-          location.info + '</div>' + address + '</div>';
-        }
-
-        // Populates content of window with the following:
-        infowindow.setContent(infoWindowContent);
-        infowindow.open(map, location.marker);
-
-      },
-      //If request fails...
-      error: function(){
-        alert('Request unsuccessful.');
-      }
-
-
-    });
-  }
-  getVenues();
-}
 
 
 var LocationItem = function(place) {
