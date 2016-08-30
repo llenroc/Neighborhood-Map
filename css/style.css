@@ -24,14 +24,11 @@ body {
   height: 100%;
 }
 
-.container {
-    height: 100%;
+.map-container {
+  height: 100%;
+  margin: 15px -10px 15px 15px;
 }
 
-.locationTitle {
-  margin: 0;
-}
-
-.classTitle{
-  margin: 0;
+.left-sidebar {
+  margin-left: 5px;
 }
