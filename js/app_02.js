@@ -67,7 +67,7 @@ function googleError() {
 
 var markers = [];
 
-var makeMarkers = function(){
+var makeMarkers = function() {
   console.log('makeMarkers');
 
   var location;
@@ -227,8 +227,8 @@ var ViewModel = function (){
 
   }
   /* Links list view to marker when user clicks on the list element */
-  self.itemClick = function(marker) {
-       google.maps.event.trigger(this.marker, 'click');
+  self.itemClick = function(placeItem) {
+       google.maps.event.trigger(placeItem.marker, 'click');
   };
 
 }
@@ -283,3 +283,48 @@ var ViewModel = function (){
 
 var vm = new ViewModel();
 
+/*
+
+// FourSquare API
+// Source:          https://developer.foursquare.com/docs/venues/explore
+// Intent:           https://developer.foursquare.com/docs/venues/search
+// Versioning:      https://developer.foursquare.com/overview/versioning
+var fourSqUrl = 'https://api.foursquare.com/v2/venues/explore?limit=1&ll=' + placeObject.lat() + ', ' + placeObject.lng() + '&intent=match&query=' + placeObject.name() + '&client_id=MHBLFPCXO2YPRPD2U44YYOMTFFCPPHGIFOKXAGW3VABQZM2X&client_secret=4HNIJABEJGAXGUCROWUOTDK3FCITUOEY1EB315H13CZOIPIY&v=20161231';
+
+// Retrieve specific FourSquare data and send it to the browser.
+// Observables should not be in getJSON call.
+// Source: https://www.youtube.com/watch?v=3hN4PrJ7R6A
+// .error Source: https://stackoverflow.com/questions/1740218/error-handling-in-getjson-calls
+var venue, name, address, rating, url;
+
+$.getJSON (fourSqUrl, function(data){
+venue =  data.response.venues;
+placeObject.name    = venue.name;
+placeObject.address = venue.address;
+placeObject.rating  = venue.rating;
+placeObject.url     = venue.url;
+})
+.error(function (fail){
+document.getElementById('markerFail').innerHTML = 'Could not retrieve data' +' on the location. Please try again.';
+
+});
+
+// Show venue location when the marker is clicked
+google.maps.event.addListener(placeObject.marker, 'click', function (){
+setTimeout(function(){
+infowindow.setContent('<h2>' + placeObject.name + '</h2>'
++ '\n<p> Address:' + placeObject.address + '</p>'
++ '\n<p> Rating: ' + placeObject.rating  + '</p>'
++ '\n<p> Website:' + placeObject.url     + '</p>')
+infowindow.open(map,placeObject.marker);
+}, 150); //
+
+
+});
+
+});
+
+
+}
+
+*/
