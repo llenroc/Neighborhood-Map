@@ -22,16 +22,18 @@
         <input placeholder='Filter by name'/>
         <br />
 
-        <ul data-bind="forEach: locationObserArray">
-          <li data-bind="text: name, click: $root.itemClick"></li>
+        <ul data-bind="foreach: locationObserArray">
+          <li>
+            <span data-bind="text: name, click: $root.itemClick"></span>
+          </li>
         </ul>
-      </div>
+    </div>
 
     </div>
     <div class="col-sm-9 map-container">
         <div id='map'></div>
     </div>
-    
+
 
     <script src='https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.0/knockout-min.js'></script>
     <script src='js/app_02.js'></script>
