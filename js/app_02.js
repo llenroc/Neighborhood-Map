@@ -36,7 +36,7 @@ var map, infowindow;
 
 // Iniatializes the map. Connects to the maps.googleapis.com script
 function initMap() {
-  console.log("initMap");
+  console.log('initMap');
 
   // Constructor creates a new map - only center and zoom are required.
   map = new google.maps.Map(document.getElementById('map'), {
@@ -60,15 +60,15 @@ function initMap() {
 // Source 2: http://www.w3schools.com/jsref/event_onerror.asp
 
 function googleError() {
-  alert("Google Maps cannot load at this time. Please refresh the page or "
-  + "try again later.");
+  alert('Google Maps cannot load at this time. Please refresh the page or '
+  + 'try again later.');
 
 }
 
 var markers = [];
 
 var makeMarkers = function(){
-  console.log("makeMarkers");
+  console.log('makeMarkers');
 
   var location;
   // LatLng
@@ -84,8 +84,9 @@ var makeMarkers = function(){
 
     var mapMarker = new google.maps.Marker({
       map: map,
-      position: location.location,
       title: location.name,
+      position: location.location,
+      url: location.url,
       animation: google.maps.Animation.DROP,
 
     });
@@ -107,6 +108,7 @@ var makeMarkers = function(){
 // Source /_Google Maps API folder: https://classroom.udacity.com/courses/ud864/lessons/8304370457/concepts/83122494450923#
 
 function populateInfoWindow(mapMarker, infowindow) {
+
   // Check to make sure the infowindow is not already opened on this marker.
   if (infowindow.mapMarker != mapMarker) {
     infowindow.mapMarker = mapMarker;
@@ -137,7 +139,7 @@ function markerBounce(location){
 }
 
 // var makeInfowindow = function(location) {
-//   console.log("location");
+//   console.log('location');
 //
 //   // AJAX request.
 //   // Source:
@@ -146,10 +148,8 @@ function markerBounce(location){
 //   var clientSecret = '4HNIJABEJGAXGUCROWUOTDK3FCITUOEY1EB315H13CZOIPIY';
 //
 //
-//
-//
 //   function getVenues(){
-//     console.log("getVenues");
+//     console.log('getVenues');
 //     $.ajax({
 //
 //       url: fourSqUrl,
@@ -197,21 +197,18 @@ function markerBounce(location){
 //   getVenues();
 // }
 
-
-
-
 var LocationItem = function(place) {
 
   this.name     = place.name;
   this.location = place.coordinates;
-  this.info     = place.info;
+  this.url      = place.url;
   this.currentSelection = ko.observable(true);
 }
 
 //                           V I E W M O D E L
 
 var ViewModel = function (){
-  console.log("ViewModel");
+  console.log('ViewModel');
   //Reference ViewModel by creating var self
   var self = this;
 
@@ -229,119 +226,60 @@ var ViewModel = function (){
     self.locationObserArray.push(place);
 
   }
-  self.listItemClick = function(marker){
-    google.maps.event.trigger(this.marker, 'click');
-  }
+  /* Links list view to marker when user clicks on the list element */
+  self.itemClick = function(marker) {
+       google.maps.event.trigger(this.marker, 'click');
+  };
 
 }
+//  Modelled on Ben's Click Clicker Pro
+// https://github.com/udacity/ud989-cat-clicker-premium-vanilla
+
+// var locationView = {
+//
+//   init: function(){
+//     // store the DOM element for easy access later
+//     this.locationListElem = document.getElementById('location-list');
+//
+//     // render this view (update the DOM elements with the right values)
+//     this.render();
+//   },
+//
+//   render: function(){
+//
+//     var location, elem, i;
+//
+//     //Get the locations we'll reder from ViewModel
+//     var locations = ViewModel.getLoctions();
+//
+//     //Empty the location list
+//     this.locationListElem.innerHTML = '';
+//
+//     for (i = 0; i < locations.length; i++) {
+//       // this is the location we're looping over
+//       location = locations[i];
+//
+//       elem = document.createElement('li');
+//       elem.textContent = location.name;
+//
+//       //on click, set
+//       elem.addEventListener('click', (function(locationCopy){
+//         return function(){
+//           locationView.setLocation(locationCopy);
+//
+//         }
+//       })(location));
+//
+//       this.locationListElem.appendChild(elem);
+//
+//     }
+//
+//
+//   }
+//
+//
+// }
+
 
 var vm = new ViewModel();
 
-
-/*
-
-var ViewModel = function() {
-// Making `this` accessible within the function. Self represents ViewModel
-// Source: https://www.udacity.com/course/viewer#!/c-ud989-nd/l-3406489055/m-3464818691
-var self = this;
-
-// Creating infowindows for markers.
-var infowindow = new google.maps.InfoWindow();
-
-// Call the Place constructor above and create Place objects for each
-// item in locations and push them into the placeList below
-// Source: https://www.udacity.com/course/viewer#!/c-ud989-nd/l-3406489055/e-3464818693/m-3464818694
-locations.forEach(function (placeObject) {
-// Avoid confusion by using self, which refers to the ViewModel
-// This ends up mapping to the placeList observableArray
-self.placeList.push(new Place (placeObject) );
-});
-
-// An array of all art galleries
-// Source: https://www.udacity.com/course/viewer#!/c-ud989-nd/l-3406489055/e-3464818693/m-3464818694
-this.placeList = ko.observableArray([]);
-
-var marker;   // Iniatilize marker
-var position; // Initialize position for the location array
-
-self.placeList().forEach(function(placeObject){
-
-marker = new google.maps.Marker({
-map: map,
-position: new google.maps.LatLng(placeObject.lat(), placeObject.lng()),
-title: name,
-animation: google.maps.Animation.DROP
-});
-placeObject.marker = marker;
-
-// FourSquare API
-// Source:          https://developer.foursquare.com/docs/venues/explore
-// Intent:           https://developer.foursquare.com/docs/venues/search
-// Versioning:      https://developer.foursquare.com/overview/versioning
-var fourSqUrl = 'https://api.foursquare.com/v2/venues/explore?limit=1&ll=' + placeObject.lat() + ', ' + placeObject.lng() + '&intent=match&query=' + placeObject.name() + '&client_id=MHBLFPCXO2YPRPD2U44YYOMTFFCPPHGIFOKXAGW3VABQZM2X&client_secret=4HNIJABEJGAXGUCROWUOTDK3FCITUOEY1EB315H13CZOIPIY&v=20161231';
-
-// Retrieve specific FourSquare data and send it to the browser.
-// Observables should not be in getJSON call.
-// Source: https://www.youtube.com/watch?v=3hN4PrJ7R6A
-// .error Source: https://stackoverflow.com/questions/1740218/error-handling-in-getjson-calls
-var venue, name, address, rating, url;
-
-$.getJSON (fourSqUrl, function(data){
-venue =  data.response.venues;
-placeObject.name    = venue.name;
-placeObject.address = venue.address;
-placeObject.rating  = venue.rating;
-placeObject.url     = venue.url;
-})
-.error(function (fail){
-document.getElementById('markerFail').innerHTML = 'Could not retrieve data' +' on the location. Please try again.';
-
-});
-
-// Show venue location when the marker is clicked
-google.maps.event.addListener(placeObject.marker, 'click', function (){
-setTimeout(function(){
-infowindow.setContent('<h2>' + placeObject.name + '</h2>'
-+ '\n<p> Address:' + placeObject.address + '</p>'
-+ '\n<p> Rating: ' + placeObject.rating  + '</p>'
-+ '\n<p> Website:' + placeObject.url     + '</p>')
-infowindow.open(map,placeObject.marker);
-}, 150); //
-
-
-});
-
-});
-
-
-}
-
-*/
-
-
-
-// Yelp Developers Authentication. OAuth too complicated.
-// Source: https://discussions.udacity.com/t/how-to-make-ajax-request-to-yelp-api/13699/5?u=david_31931020565290
-
-
-// We need the markers for the designated galleries to show up on the map.
-// Use for loop to iterate over the var location items
-// To optimize loop speed (remember web optimization project),
-// variables kept outside the loop.
-
-// var i;
-// var localLength = locations.length;
-
-// for (i = 0; i < localLength; i++){
-//
-//   var position = locations[i].coordinates;
-//   var gallery = locations[i].name;
-//
-//   // Define marker
-//   marker = new google.maps.Marker({
-//     map: map,
-//     position: position,
-//     title: name,
-//     animation: google.maps.Animation.DROP,
-//   });
-//   galleryItem.marker = marker;
