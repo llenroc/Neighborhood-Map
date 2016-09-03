@@ -45,9 +45,9 @@ function initMap() {
     mapTypeControl: true
   });
 
-  infowindow = new google.maps.InfoWindow({
-    maxWidth: 200
-  });
+  // infowindow = new google.maps.InfoWindow({
+  //   maxWidth: 200
+  // });
 
   // Invoke makeMarkers function
   makeMarkers();
@@ -56,14 +56,13 @@ function initMap() {
 
 }
 // Setting up googleError to display alert message if map does not load
-// Source 1: https://discussions.udacity.com/t/handling-google-maps-in-async-and-fallback/34282?_ga=1.41498853.695421812.1465078182
 // Source 2: http://www.w3schools.com/jsref/event_onerror.asp
-
 function googleError() {
   alert('Google Maps cannot load at this time. Please refresh the page or '
   + 'try again later.');
-
 }
+
+var marker;
 
 var markers = [];
 
@@ -76,30 +75,44 @@ var makeMarkers = function() {
   var largeInfowindow = new google.maps.InfoWindow();
   var bounds = new google.maps.LatLngBounds();
 
-
   for (var i = 0; i < vm.locationObserArray().length; i++){
 
     // Store this location item inside a variable
     location = vm.locationObserArray()[i];
 
     var mapMarker = new google.maps.Marker({
-      map: map,
-      title: location.name,
-      position: location.location,
-      url: location.url,
-      animation: google.maps.Animation.DROP,
-
+      map:        map,
+      title:      location.name,
+      position:   location.location,
+      // url:     location.url,
+      animation:  google.maps.Animation.DROP
     });
+    mapMarker.addListener('click', markerBounce);
+    
+    // Marker Animation
+    // Source: https://developers.google.com/maps/documentation/javascript/examples/marker-animations
+    function markerBounce() {
+      if (mapMarker.getAnimation() !== null){
+        mapMarker.setAnimation(null);
+      }
+      else {
+        mapMarker.setAnimation(google.maps.Animation.BOUNCE);
+        setTimeout(function(){
+          mapMarker.setAnimation(null);
+        }, 500);
+      }
+
+    }
 
     markers.push(mapMarker);
 
     mapMarker.addListener('click', function() {
-      populateInfoWindow(this, largeInfowindow)
+      populateInfoWindow(this, largeInfowindow);
+      markerBounce();      // Not working. Why?
     });
     bounds.extend(markers[i].position);
-
   }
-  map.fitBounds(bounds);
+    map.fitBounds(bounds);
 }
 
 // This function populates the infowindow when the marker is clicked. We'll only allow
@@ -123,20 +136,144 @@ function populateInfoWindow(mapMarker, infowindow) {
   }
 }
 
-// Marker Animation
-// Source: https://developers.google.com/maps/documentation/javascript/examples/marker-animations
-function markerBounce(location){
-  if (location.marker.getAnimation() !== null){
-    location.marker.setAnimation(null);
+
+
+var LocationItem = function(place) {
+
+  this.name     = place.name;
+  this.location = place.coordinates;
+  // this.url      = place.url;
+  this.currentSelection = ko.observable(true);
+  // this.marker = '';
+}
+
+//                           V I E W M O D E L
+
+var ViewModel = function (){
+  console.log('ViewModel');
+  //Reference ViewModel by creating var self
+  var self = this;
+
+  //Monitor changes to the Location Observ Array
+  self.locationObserArray = ko.observableArray();
+
+  var place;
+
+  for (var i = 0; i < locations.length; i++){
+
+    // Make new LocationItem with location objects
+    place = new LocationItem(locations[i]);
+
+    // Push the new LocationItem to the locationObserArray
+    self.locationObserArray.push(place);
+
   }
-  else {
-    location.marker.setAnimation(google.maps.Animation.BOUNCE);
-    setTimeout(function(){
-      location.marker.setAnimation(null);
-    }, 500);
-  }
+  var placeItem;
+  var marker;
+  /* Links list view to marker when user clicks on the list element */
+  self.itemClick = function(placeItem) {
+      console.log("placeItem: ", placeItem);
+      google.maps.event.trigger(placeItem.location, 'click');
+  };
+
+  // KO will monitor the what the user inputs into the search bar.
+  // Value will be bound to the textInput binding and will provide a string for the text Search
+  self.searchVenue = ko.observable();
+
+  self.filterSearch = ko.computed(function(){
+    console.log("search");
+    //If the input box is empty, make all location in the list visible
+    if (!self.searchVenue() || self.searchVenue ===undefined){
+      // Display all markers
+
+      for (var i = 0; i < self.locationObserArray().length; i++){
+        if (self.locationObserArray()[i].marker !== undefined){
+          self.locationObserArray()[i].marker.setVisible(true); // Display the marker
+        }
+      }
+      return self.locationObserArray();
+    } else {
+      // Avoid case sensitivity : toLowerCase();
+      var filter = self.searchVenue().toLowerCase();
+      // KO filters out non-matching locations
+      // Source: http://www.knockmeout.net/2011/04/utility-functions-in-knockoutjs.html
+      return ko.utils.arrayFilter(self.locationObserArray(),
+      function(location) {
+        var match = location.name.toLowerCase().indexOf(filter) > -1;
+        // Set visibility to true if location matches
+        location.marker.setVisible(match);
+        // If tue, location goes to filtered array
+        return match;
+      });
+    }
+  });
+
+
 
 }
+
+var vm = new ViewModel();
+
+
+//  Modelled on Ben's Click Clicker Pro
+// https://github.com/udacity/ud989-cat-clicker-premium-vanilla
+
+// var locationView = {
+//
+//   init: function(){
+//     // store the DOM element for easy access later
+//     this.locationListElem = document.getElementById('location-list');
+//
+//     // render this view (update the DOM elements with the right values)
+//     this.render();
+//   },
+//
+//   render: function(){
+//
+//     var location, elem, i;
+//
+//     //Get the locations we'll reder from ViewModel
+//     var locations = ViewModel.getLoctions();
+//
+//     //Empty the location list
+//     this.locationListElem.innerHTML = '';
+//
+//     for (i = 0; i < locations.length; i++) {
+//       // this is the location we're looping over
+//       location = locations[i];
+//
+//       elem = document.createElement('li');
+//       elem.textContent = location.name;
+//
+//       //on click, set
+//       elem.addEventListener('click', (function(locationCopy){
+//         return function(){
+//           locationView.setLocation(locationCopy);
+//
+//         }
+//       })(location));
+//
+//       this.locationListElem.appendChild(elem);
+//
+//     }
+//
+//
+//   }
+//
+//
+// }
+
+
+
+
+
+// __________________________________________________
+
+
+
+
+
+
 
 // var makeInfowindow = function(location) {
 //   console.log('location');
@@ -196,135 +333,3 @@ function markerBounce(location){
 //   }
 //   getVenues();
 // }
-
-var LocationItem = function(place) {
-
-  this.name     = place.name;
-  this.location = place.coordinates;
-  this.url      = place.url;
-  this.currentSelection = ko.observable(true);
-}
-
-//                           V I E W M O D E L
-
-var ViewModel = function (){
-  console.log('ViewModel');
-  //Reference ViewModel by creating var self
-  var self = this;
-
-  //Monitor changes to the Location Observ Array
-  self.locationObserArray = ko.observableArray();
-
-  var place;
-
-  for (var i = 0; i < locations.length; i++){
-
-    // Make new LocationItem with location objects
-    place = new LocationItem(locations[i]);
-
-    // Push the new LocationItem to the locationObserArray
-    self.locationObserArray.push(place);
-
-  }
-  /* Links list view to marker when user clicks on the list element */
-  self.itemClick = function(placeItem) {
-       google.maps.event.trigger(placeItem.marker, 'click');
-  };
-
-}
-//  Modelled on Ben's Click Clicker Pro
-// https://github.com/udacity/ud989-cat-clicker-premium-vanilla
-
-// var locationView = {
-//
-//   init: function(){
-//     // store the DOM element for easy access later
-//     this.locationListElem = document.getElementById('location-list');
-//
-//     // render this view (update the DOM elements with the right values)
-//     this.render();
-//   },
-//
-//   render: function(){
-//
-//     var location, elem, i;
-//
-//     //Get the locations we'll reder from ViewModel
-//     var locations = ViewModel.getLoctions();
-//
-//     //Empty the location list
-//     this.locationListElem.innerHTML = '';
-//
-//     for (i = 0; i < locations.length; i++) {
-//       // this is the location we're looping over
-//       location = locations[i];
-//
-//       elem = document.createElement('li');
-//       elem.textContent = location.name;
-//
-//       //on click, set
-//       elem.addEventListener('click', (function(locationCopy){
-//         return function(){
-//           locationView.setLocation(locationCopy);
-//
-//         }
-//       })(location));
-//
-//       this.locationListElem.appendChild(elem);
-//
-//     }
-//
-//
-//   }
-//
-//
-// }
-
-
-var vm = new ViewModel();
-
-/*
-
-// FourSquare API
-// Source:          https://developer.foursquare.com/docs/venues/explore
-// Intent:           https://developer.foursquare.com/docs/venues/search
-// Versioning:      https://developer.foursquare.com/overview/versioning
-var fourSqUrl = 'https://api.foursquare.com/v2/venues/explore?limit=1&ll=' + placeObject.lat() + ', ' + placeObject.lng() + '&intent=match&query=' + placeObject.name() + '&client_id=MHBLFPCXO2YPRPD2U44YYOMTFFCPPHGIFOKXAGW3VABQZM2X&client_secret=4HNIJABEJGAXGUCROWUOTDK3FCITUOEY1EB315H13CZOIPIY&v=20161231';
-
-// Retrieve specific FourSquare data and send it to the browser.
-// Observables should not be in getJSON call.
-// Source: https://www.youtube.com/watch?v=3hN4PrJ7R6A
-// .error Source: https://stackoverflow.com/questions/1740218/error-handling-in-getjson-calls
-var venue, name, address, rating, url;
-
-$.getJSON (fourSqUrl, function(data){
-venue =  data.response.venues;
-placeObject.name    = venue.name;
-placeObject.address = venue.address;
-placeObject.rating  = venue.rating;
-placeObject.url     = venue.url;
-})
-.error(function (fail){
-document.getElementById('markerFail').innerHTML = 'Could not retrieve data' +' on the location. Please try again.';
-
-});
-
-// Show venue location when the marker is clicked
-google.maps.event.addListener(placeObject.marker, 'click', function (){
-setTimeout(function(){
-infowindow.setContent('<h2>' + placeObject.name + '</h2>'
-+ '\n<p> Address:' + placeObject.address + '</p>'
-+ '\n<p> Rating: ' + placeObject.rating  + '</p>'
-+ '\n<p> Website:' + placeObject.url     + '</p>')
-infowindow.open(map,placeObject.marker);
-}, 150); //
-
-
-});
-
-});
-
-
-}
-
-*/
