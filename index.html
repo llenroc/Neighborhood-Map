@@ -19,9 +19,12 @@
 
         <h2> Art Galleries + Museums in Toronto</h2>
         <label>Search: </label>
-        <input placeholder='Filter by name'/>
+
+        <!-- data-bind="textInput: userInput" -->
+        <input  data-bind="textInput: searchVenue" placeholder='Filter by name'/>
         <br />
 
+          <!-- <ul data-bind="foreach: locationObserArray"> -->
         <ul data-bind="foreach: locationObserArray">
           <li>
             <span data-bind="text: name, click: $root.itemClick"></span>
