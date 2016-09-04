@@ -38,6 +38,7 @@ var locations = [{
     lng: -79.3851863
   }
 }];
+
 // Create map variable in global scope
 var map, infowindow;
 // Iniatializes the map. Connects to the maps.googleapis.com script
@@ -52,16 +53,15 @@ function initMap() {
       zoom: 13, //Smaller the number, the more zoomed out you are
       mapTypeControl: true
     });
-    // infowindow = new google.maps.InfoWindow({
-    //   maxWidth: 200
-    // });
+
     // Invoke makeMarkers function
     makeMarkers();
     ko.applyBindings(vm);
     vm.addMarkers();
   }
-  // Setting up googleError to display alert message if map does not load
-  // Source 2: http://www.w3schools.com/jsref/event_onerror.asp
+
+// Setting up googleError to display alert message if map does not load
+// Source 2: http://www.w3schools.com/jsref/event_onerror.asp
 
 function googleError() {
   alert('Google Maps cannot load at this time. Please refresh the page or ' +
@@ -100,6 +100,7 @@ var makeMarkers = function() {
         }
       }
       markers.push(mapMarker);
+
       mapMarker.addListener('click', function() {
         populateInfoWindow(this, largeInfowindow);
         markerBounce(); // Not working. Why?
@@ -132,9 +133,10 @@ var LocationItem = function(place) {
     this.location = place.coordinates;
     // this.url      = place.url;
     this.currentSelection = ko.observable(true);
-    // this.marker = '';
   }
-  //                           V I E W M O D E L
+
+//                           V I E W M O D E L
+
 var ViewModel = function() {
   console.log('ViewModel');
   //Reference ViewModel by creating var self
@@ -158,10 +160,14 @@ var ViewModel = function() {
   };
   // KO will monitor the what the user inputs into the search bar.
   // Value will be bound to the textInput binding and will provide a string for the text Search
-  self.searchVenue = ko.observable();
+  self.searchVenue  = ko.observable();
+
+  
+
   self.filterSearch = ko.computed(function() {
     console.log("search");
     //If the input box is empty, make all location in the list visible
+
     if (!self.searchVenue() || self.searchVenue === undefined) {
       // Display all markers
       for (var i = 0; i < self.locationObserArray().length; i++) {
@@ -185,6 +191,10 @@ var ViewModel = function() {
       });
     }
   });
+
+
+
+  // Karol. How did you...?
   this.addMarkers = function() {
     this.locationObserArray().forEach(function(place, i) {
       place.marker = markers[i];
