@@ -21,8 +21,8 @@
         <label>Search: </label>
 
         <!-- data-bind="textInput: userInput" -->
-        <input  data-bind="textInput: searchVenue" placeholder='Filter by name'/>
-        <br />
+        <input data-bind=" textInput: searchVenue" placeholder='Filter by name'/>
+
 
           <!-- <ul data-bind="foreach: locationObserArray"> -->
         <ul data-bind="foreach: locationObserArray">
@@ -38,9 +38,10 @@
     </div>
 
 
+    <script src='js/jquery-3.1.0.min.js'></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.0/knockout-min.js'></script>
     <script src='js/app_03.js'></script>
-    <script src='js/jquery-3.1.0.min.js'></script>
+
     <!--
     Handling Google Maps in Async and Fallback:
     https://discussions.udacity.com/t/handling-google-maps-in-async-and-fallback/34282
