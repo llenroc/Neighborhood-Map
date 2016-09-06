@@ -13,10 +13,10 @@
   </head>
 
   <body>
-    <div class='row col-md-3 left-sidebar'>
+
+  <div class='row left-sidebar col-sm-3' class='main'>
       <!-- For map to render, see details in style.css  -->
       <div>
-
         <h2> Art Galleries + Museums in Toronto</h2>
         <label>Search: </label>
 
@@ -29,6 +29,7 @@
             listed item
         -->
         <ul data-bind="foreach: filterSearch">
+          <br />
           <li>
             <span data-bind="text: name, click: $root.itemClick"></span>
           </li>
@@ -36,7 +37,7 @@
     </div>
 
     </div>
-    <div class="col-sm-9 map-container">
+    <div class="col-sm-9 map-container ">
         <div id='map'></div>
     </div>
 
@@ -50,7 +51,6 @@
     https://discussions.udacity.com/t/handling-google-maps-in-async-and-fallback/34282
     -->
     <script async defer src='https://maps.googleapis.com/maps/api/js?key=AIzaSyB-PW96pMprySrSMiJkwfFk3wbiWYpP0r0&v=3&callback=initMap' onerror='googleError()'></script>
-
 
   </body>
 
