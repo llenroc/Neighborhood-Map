@@ -1,4 +1,15 @@
-'use strict';
+// Hello.
+//
+// This is JSHint, a tool that helps to detect errors and potential
+// problems in your JavaScript code.
+//
+// To start, simply enter some JavaScript anywhere on this page. Your
+// report will appear on the right side.
+//
+// Additionally, you can toggle specific options in the Configure
+// menu.
+
+"use strict";
 //                               M O D E L
 // Holds the locations of different art galleries in Toronto
 var locations = [{
@@ -56,7 +67,6 @@ var locations = [{
 var map, largeInfowindow;
 // Iniatializes the map. Connects to the maps.googleapis.com script
 function initMap() {
-    console.log('initMap');
     // Constructor creates a new map - only center and zoom are required.
     map = new google.maps.Map(document.getElementById('map'), {
       center: {
@@ -90,7 +100,10 @@ var makeMarkers = function() {
 /* REMOVED var SO  largeInfowindow is available in the global scoope ************/
     largeInfowindow = new google.maps.InfoWindow();
     var bounds = new google.maps.LatLngBounds();
-    for (var i = 0; i < vm.locationObserArray().length; i++) {
+    var i;
+    var len = vm.locationObserArray().length;
+
+    for (i = 0; i < len; i++) {
       // Store this location item inside a variable
       location = vm.locationObserArray()[i];
       var mapMarker = new google.maps.Marker({
@@ -101,12 +114,6 @@ var makeMarkers = function() {
         animation:  google.maps.Animation.DROP,
         fsID:       location.fsID
       });
-/* REMOVED LISTENER -- BOUNCE ADDED BELOW **************************************
-      mapMarker.addListener('click', markerBounce);
-
-      // Marker Animation
-      // Source: https://developers.google.com/maps/documentation/javascript/examples/marker-animations
-********************************************************************************/
 
       // Push mapMarker properties into an array
       markers.push(mapMarker);
@@ -121,10 +128,10 @@ var makeMarkers = function() {
       bounds.extend(markers[i].position);
     }
     map.fitBounds(bounds);
-  }
+  };
 
-/* MOVE MARKERBOUNCE OUT OF LOOP **********************************************
-   add marker parameter so Google Maps knows which marker to bounce ***********/
+/* MOVED MARKERBOUNCE OUT OF LOOP**
+   added marker parameter so Google Maps knows which marker to bounce */
 
 function markerBounce(marker) {
     if (marker.getAnimation() !== null) {
@@ -162,12 +169,11 @@ var LocationItem  = function(place) {
     this.url      = place.url;
     this.currentSelection = ko.observable(true);
     this.fsID     = place.fsID;
-}
+};
 
 //                           V I E W M O D E L
 
 var ViewModel = function() {
-  console.log('ViewModel');
   //Reference ViewModel by creating var self
   var self = this;
   //Monitor changes to the Location Observ Array
@@ -194,7 +200,6 @@ var ViewModel = function() {
   self.searchVenue  = ko.observable('');
 
   self.filterSearch = ko.computed(function() {
-    console.log("search");
     //If the input box is empty, make all location in the list visible
 
     if (!self.searchVenue() || self.searchVenue === undefined) {
@@ -228,15 +233,14 @@ var ViewModel = function() {
       place.marker = markers[i];
     });
   };
-}
+};
 var vm = new ViewModel();
 
 
-// __________________________________________________
+//                        I N F O W I N D O W
 
 
 var makeInfowindow = function(marker) {
-
   //  AJAX request.
    var fourSqUrl = 'https:api.foursquare.com/v2/venues/' + marker.fsID;
    var clientId  = 'MHBLFPCXO2YPRPD2U44YYOMTFFCPPHGIFOKXAGW3VABQZM2X';
@@ -255,27 +259,25 @@ var makeInfowindow = function(marker) {
       success: function(result){
          var venue   = result.response.venue;
          var address = venue.location.address;
-        //  var url     = venue.location.url;
+        //  var url  = venue.response.url;
 
          if (venue === null) {
- /* CHANGED REFERENCE FROM location to marker *******************************************************
-      also changed reference from name to title ****************************************************/
-           var infoWindowContent = '<div>' + marker.title + '</div>' +
-/* TODO: INFO IS NOT DEFINED  **********************************************************************/
-          '<div>' + address + '</div>' + ': NO ADDRESS DATA AVAILABLE.';
+ //  CHANGED REFERENCE FROM location to marker
+
+           var infoWindowContent = '<p>' + marker.title + '</p>' +
+          '<p>' + address + '</p>' + ': NO ADDRESS DATA AVAILABLE.';
          } else {
-            var infoWindowContent = '<div>' + marker.title + '</div>' +
-             '<div>' + address + '</div>' + '<div>' + marker.url + '</div>' ;
+            var infoWindowContent = '<h4>' + marker.title + '</h4>' +
+             '<p>' + address + '</p>' + '<a href="http://' + marker.url +'">' + marker.url + '</a>'
         }
         // Populates content of window with the following:
-/* CHANGED REFERENCE TO largeInfowindow available in global scope *********************************/
          largeInfowindow.setContent(infoWindowContent);
          largeInfowindow.open(map, marker);
 
        },
        //If request fails...
        error: function(){
-       alert('Request unsuccessful.');
+          alert('Request unsuccessful.');
        }
      });
- }
+ };
