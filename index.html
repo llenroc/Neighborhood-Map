@@ -14,9 +14,9 @@
 
   <body>
 
-  <div class='row left-sidebar col-sm-3' class='main'>
+  <div class='left-sidebar col-xs-3 '>
       <!-- For map to render, see details in style.css  -->
-      <div>
+      <div >
         <h2> Art Galleries + Museums in Toronto</h2>
         <label>Search: </label>
 
@@ -28,7 +28,7 @@
             ... and bind filterSearch which will filter and show the filtered
             listed item
         -->
-        <ul data-bind="foreach: filterSearch">
+        <ul data-bind="foreach: filterSearch" class='wrap'>
           <br />
           <li>
             <span data-bind="text: name, click: $root.itemClick"></span>
@@ -37,7 +37,7 @@
     </div>
 
     </div>
-    <div class="col-sm-9 map-container ">
+    <div class=" map-container">
         <div id='map'></div>
     </div>
 
